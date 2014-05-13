@@ -131,7 +131,7 @@
         
         
 		//no permitimos enviar sentencias sql complejas en el orm.
-        function or_where($column, $value)
+        function or_where($column, $value = FALSE)
         {
             //$column = $this->get_column($column);
             $this->_queryBuilder = $this->_queryBuilder->or_where($column, $value);
@@ -330,8 +330,11 @@
 				return FALSE;
 			}
 			
+			$id_list = array();
+			ini_set('error_reporting', E_ALL);
 			include_once 'ORM_Relation_Manager.php';
 			
+
             foreach($this->_joins as $key => $column)
             {
 
@@ -341,7 +344,16 @@
 
 					$relation = new ORM_Relation_Manager($column);
 					
-					$relation->add_QueryBuilder($this->_get_query_join());
+					if(!array_key_exists($column['columnName'], $id_list))
+					{
+						foreach($this->_result_data as &$r)
+						{
+							$id_list[$column['columnName']][] = $r->get_data($column['columnName']);
+						}
+					}
+
+					
+					$relation->add_index($id_list[$column['columnName']]);
 
 					$join_data = $relation->get_data();
 					
@@ -479,7 +491,7 @@
 		 
 		 private function _get_query_join()
 		 {
-		 	return QueryBox::get_filter($this->_query_join_name);
+		 	$query = QueryBox::get_filter($this->_query_join_name);
 		 }
          
          function get_columns()

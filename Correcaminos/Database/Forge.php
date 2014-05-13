@@ -1,6 +1,7 @@
 <?php namespace Correcaminos\Database;
     
     use Correcaminos\Warning,
+    	Correcaminos\Database\QueryBuilder,
         Correcaminos\Database\Result,
         Correcaminos\Database\Forge;
 		
@@ -20,8 +21,11 @@
             $sql = 'SHOW COLUMNS FROM '.$this->_main_table.' LIKE :1';
 
             $values = array(':1' => $column);
-            $result = new Result(Driver::query($sql, $values));
-
+           
+			$query = new QueryBuilder();
+			
+			$result = $query->raw_query($sql, $values);
+		   
             if($result->num_rows() > 0)
             {
                 return TRUE;
@@ -37,8 +41,13 @@
 		 	$sql = 'SHOW COLUMNS FROM '.$this->_main_table;
 			
 			$values = array();
-            return new Result(Driver::query($sql, $values));
 			
+			$query = new QueryBuilder();
+			
+			$return_data = $query->raw_query($sql);
+			
+			return $return_data->result();
+
 		 }
 		
 		

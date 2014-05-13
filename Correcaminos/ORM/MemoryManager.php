@@ -991,6 +991,8 @@
 			static $warehouse 		= NULL;
 			
 			static $object_list		= array();
+			
+			static $affected_rows	= 0;
 
 			
  			public static function init_memory_manager()
@@ -1133,8 +1135,19 @@
             {
                 return self::$benchmark;
             }
+			
+			public static function set_affected_rows($num_rows)
+			{
+				if(is_int($num_rows))
+				{
+					self::$affected_rows = $num_rows;
+				}
+			}
 
-
+			public static function get_affected_rows()
+			{
+				return self::$affected_rows;
+			}
 
             /**
              * ===========================================================================
@@ -1221,5 +1234,6 @@
 			{
 				return self::$warehouse->get_query_stack()->get_table_stacks($table, $type);
 			}
+			
 			
     }

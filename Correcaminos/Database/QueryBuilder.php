@@ -342,6 +342,8 @@
         
         private  $_values         = NULL;
 		
+		private  $_is_distinct	  = FALSE;
+		
 		private $_ar_aliased_tables = array();
 
          
@@ -486,6 +488,7 @@
             $this->_offset        = NULL;
             $this->_values        = NULL;
             $this->_main_table    = NULL;
+			$this->_is_distinct	  = FALSE;
         } 
         
         
@@ -1016,6 +1019,13 @@
 
             return $this;
          }
+		 
+		 function distinct($distinct = TRUE)
+		 {
+		 	((is_bool($distinct))?$this->_is_distinct = $distinct:FALSE);
+			
+			return $this;
+		 }
         
         
         private function _exception($msg)
@@ -1311,7 +1321,8 @@
         
         private function _make_query()
         {
-            $sql = 'SELECT ';
+            $sql = 'SELECT '.(($this->_is_distinct === TRUE)?' DISTINCT ':'');
+			
             $params = array();
             
             // ----------------------------------------------------------------

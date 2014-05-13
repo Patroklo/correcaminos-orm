@@ -423,7 +423,8 @@ use Correcaminos\ORM\MemoryManager,
 					MemoryManager::load_object($type);
 					if(Driver::is_cache_on() == TRUE){  MemoryManager::set_object_memcache($this->_key_query, $type);  }
 				}
-				$this->_PdoStatement->setFetchMode($data_type, $type);			 
+				$this->_PdoStatement->setFetchMode($data_type, $this->_generic_object);
+				$fetch_arguments = $type;
 			}
 						
 			$this->check_pointer();
@@ -431,7 +432,7 @@ use Correcaminos\ORM\MemoryManager,
 			
 			if($num_row == 0)
 			{
-				return $this->_PdoStatement->fetch($data_type, \PDO::FETCH_ORI_FIRST);
+				$return_data = $this->_PdoStatement->fetch($data_type, \PDO::FETCH_ORI_FIRST);
 			}
 			else
 			{
@@ -439,8 +440,16 @@ use Correcaminos\ORM\MemoryManager,
 				{
 					$this->_PdoStatement->fetch($data_type, \PDO::FETCH_ORI_NEXT);
 				}
-				return $this->_PdoStatement->fetch($data_type, \PDO::FETCH_ORI_NEXT);
+				$return_data = $this->_PdoStatement->fetch($data_type, \PDO::FETCH_ORI_NEXT);
 			}
+			
+			if(isset($fetch_arguments))
+			{
+				$return_data = new $fetch_arguments($return_data);
+			}
+
+
+			return $return_data;
 
 		}
 		

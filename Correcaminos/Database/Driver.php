@@ -31,6 +31,8 @@
 			static $memcache_expire = 300;
 			static $post_benchmarking = FALSE;
 			static $regenerate_table_file_data = FALSE;
+			static $_errors_activated = FALSE;
+			static $_transaction_status = TRUE;
 			
 			const NO_PDO = 3;
 
@@ -174,6 +176,7 @@
 
 			if($query_write == TRUE)
 			{
+				MemoryManager::set_affected_rows($result_data);
 				return $result_data;
 			}
 			else
@@ -232,11 +235,20 @@
 		{
 			self::$connection->beginTransaction();
 			self::$transaction = TRUE;
+			self::$_transaction_status = TRUE;
 		}
 		
 		static function commit_transacion()
 		{
-			self::$connection->commit();
+			if(self::$_transaction_status == TRUE)
+			{
+				self::$connection->commit();	
+			}
+			else
+			{
+				self::rollback_transaction();
+			}
+			
 			self::$transaction = FALSE;			
 		}
 
@@ -244,6 +256,11 @@
 		{
 			self::$connection->rollBack();
 			self::$transaction = FALSE;
+		}
+		
+		static function transaction_status()
+		{
+			return self::$_transaction_status;
 		}
 
          /**
@@ -306,17 +323,20 @@
 			{
 				//throws the error code and warning if there is an error
             	$driverOptions[\PDO::ATTR_ERRMODE] = \PDO::ERRMODE_WARNING;
+				self::$_errors_activated = TRUE;
 			}
 			elseif(self::$error_mode == 'EXCEPTION')
 			{
 				//throws the error code and an exception, 
             	$driverOptions[\PDO::ATTR_ERRMODE] = \PDO::ERRMODE_EXCEPTION;
+				self::$_errors_activated = TRUE;
 			}
 			else
 			{
 				//throws only a error code; the driver will then catch it
 				//in _execute and trigger an exception
 	            $driverOptions[\PDO::ATTR_ERRMODE] = \PDO::ERRMODE_SILENT;
+				self::$_errors_activated = FALSE;
 			}
 
             //$driverOptions[\PDO::ATTR_EMULATE_PREPARES] = FALSE;
@@ -384,14 +404,18 @@
 		{
 			if($sth->errorCode() !== '00000')
 			{
-				echo MemoryManager::last_query().'<br />';
 				if(self::$transaction == TRUE)
 				{
-					self::rollback_transaction();
+					//self::rollback_transaction();
+					self::$_transaction_status = FALSE;
 				}
-				
-				$error = $sth->errorInfo();
-				self::_exception($error[2]);
+			
+				if(self::$_errors_activated == TRUE)
+				{
+					echo MemoryManager::last_query().'<br />';
+					$error = $sth->errorInfo();
+					self::_exception($error[2]);
+				}
 			}
 		}
         

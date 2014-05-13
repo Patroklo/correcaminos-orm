@@ -87,8 +87,13 @@ class base{
 						$relation = new \Correcaminos\ORM\ORM_Relation_Manager($column);
 						
 						$relation->add_index($this->get_data($classData['joins'][$field]['columnName']));
-	
-						$this->set_data($field, $relation->get_data(), FALSE);
+	                      
+                        $join_data = $relation->get_data();
+    
+                        if(array_key_exists($this->get_data($classData['joins'][$field]['columnName']), $join_data))
+                        {
+                            $this->set_data($field, $join_data[$this->get_data($classData['joins'][$field]['columnName'])], FALSE);
+                        }
 						
 						return $this->_data->$field;
 					}

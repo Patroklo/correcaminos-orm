@@ -27,7 +27,7 @@
          */ 
 
         
-        function where($column, $value = '')
+        function where($column, $value = FALSE)
         {
         	$column = $this->get_column($column);
         	$this->ORM_QueryBuilder->where($column, $value);
@@ -35,7 +35,7 @@
         }
         
         
-        function or_where($column, $value = '')
+        function or_where($column, $value = FALSE)
         {
         	$column = $this->get_column($column);
         	$this->ORM_QueryBuilder->or_where($column, $value);
@@ -164,46 +164,59 @@
 		 */
         private function get_column($column)
         {
-
-	 		if(Parser::_has_operator($column))
+            if(is_array($column))
             {
-            	$parsed_data = Parser::_clean_operators($column);
-                $column = $parsed_data['column'];
-				$operator = $parsed_data['operator'];
+                foreach($column as $key => $c)
+                {
+                    $new_key = $this->get_column($key);
+                    
+                    $return_data[$new_key] = $c;
+                }
+                
+                return $return_data;
             }
-			else
-			{
-				$operator = '=';
-			}
-
-
-        	$col_data = Parser::_strip_column_table($column);
-			
-
-			$_columns = $this->ORM_QueryBuilder->get_columns();
-			
-			$_table = $this->ORM_QueryBuilder->get_table();
-			
-			if($col_data['table'] == NULL)
-			{
-				    if(array_key_exists($col_data['column'], $_columns))
-		            {
-		                return $_table.'.'.$_columns[$col_data['column']]['Field'].$operator;
-		            }
-			}
-			else
-			{
-				if($_table == $col_data['table'] && (array_key_exists($col_data['column'], $_columns)))
-				{
-					 return $_table.'.'.$_columns[$col_data['column']]['Field'].$operator; 
-				}
-				elseif(array_key_exists($col_data['table'], $_join_tables))
-				{
-					return $col_data['table'].'.'.$col_data['column'].$operator;
-				}
-			}
-
-            self::_exception("The ".$column.' field doesn\'t exist.');
+            else
+            {
+                if(Parser::_has_operator($column))
+                {
+                    $parsed_data = Parser::_clean_operators($column);
+                    $column = $parsed_data['column'];
+                    $operator = $parsed_data['operator'];
+                }
+                else
+                {
+                    $operator = '=';
+                }
+    
+    
+                $col_data = Parser::_strip_column_table($column);
+                
+    
+                $_columns = $this->ORM_QueryBuilder->get_columns();
+                
+                $_table = $this->ORM_QueryBuilder->get_table();
+                
+                if($col_data['table'] == NULL)
+                {
+                        if(array_key_exists($col_data['column'], $_columns))
+                        {
+                            return $_table.'.'.$_columns[$col_data['column']]['Field'].$operator;
+                        }
+                }
+                else
+                {
+                    if($_table == $col_data['table'] && (array_key_exists($col_data['column'], $_columns)))
+                    {
+                         return $_table.'.'.$_columns[$col_data['column']]['Field'].$operator; 
+                    }
+                    elseif(array_key_exists($col_data['table'], $_join_tables))
+                    {
+                        return $col_data['table'].'.'.$col_data['column'].$operator;
+                    }
+                }
+    
+                self::_exception("The ".$column.' field doesn\'t exist.');
+            }
         }
 
         private function _exception($msg)
