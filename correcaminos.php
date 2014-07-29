@@ -14,59 +14,61 @@ use Correcaminos\Database\Driver,
 
 		private $ORM_INIT = FALSE;
 
-        public function __construct()
-        {
-                    
-            //path where the object directory it's stored.
-            define("CC_OBJECT_PATH", APPPATH.'modules/correcaminos/libraries/Correcaminos/Objects/');
-            define("CC_OBJECT_DEFINITION_PATH", CC_OBJECT_PATH.'data_objects/');
-            define("CC_ROM_DEFINITION_PATH", APPPATH.'modules/correcaminos/libraries/Correcaminos/ORM/');
 
-            require_once 'Correcaminos/Database/Driver.php';
-            require_once 'Correcaminos/Database/Result.php';
-            require_once 'Correcaminos/Database/QueryBuilder.php';
-            require_once 'Correcaminos/ORM/MemoryManager.php';
-            require_once 'Correcaminos/Warning.php';
-            require_once 'Correcaminos/Objects/base.php';
-            require_once 'Correcaminos/Parser.php';
-            require_once 'Correcaminos/QueryBox.php';
-            require_once 'Correcaminos/Cache/Lite.php';
+		public function __construct()
+		{
+					
+			//path where the object directory it's stored.
+			define("CC_OBJECT_PATH", APPPATH.'modules/correcaminos/libraries/Correcaminos/Objects/');
+			define("CC_OBJECT_DEFINITION_PATH", CC_OBJECT_PATH.'data_objects/');
+			define("CC_ROM_DEFINITION_PATH", APPPATH.'modules/correcaminos/libraries/Correcaminos/ORM/');
 
-            
-            require_once CC_OBJECT_DEFINITION_PATH.'d_data.php';
+			require_once 'Correcaminos/Database/Driver.php';
+			require_once 'Correcaminos/Database/Result.php';
+			require_once 'Correcaminos/Database/QueryBuilder.php';
+			require_once 'Correcaminos/ORM/MemoryManager.php';
+			require_once 'Correcaminos/Warning.php';
+			require_once 'Correcaminos/Objects/base.php';
+			require_once 'Correcaminos/Parser.php';
+			require_once 'Correcaminos/QueryBox.php';
+			require_once 'Correcaminos/Cache/Lite.php';
+			require_once 'Correcaminos/ORM/ORM_Operations.php';
 
-
-            $db_conn['hostname']        = 'hostname of database';
-            $db_conn['username']        = 'username of database';
-            $db_conn['password']        = 'password of username';
-            $db_conn['database']        = 'database name';
-            $db_conn['dbdriver']        = 'mysql';
-            $db_conn['pconnect']        = FALSE;
-            $db_conn['db_debug']        = TRUE;
-            
-            //caches *memcache, *apc *ramcache (this is only for the running script life) 
-            $db_conn['memcache_on']     = FALSE;
-            $db_conn['apccache_on']     = FALSE;
-            $db_conn['inner_cache_on']  = FALSE;
-            $db_conn['filecache_on']    = FALSE;
-            $db_conn['memcache_expire'] = 300;
-            
-            $db_conn['regenerate_table_file_data'] = FALSE;
-            
-            
-            $db_conn['cachedir']            = '';
-            $db_conn['char_set']            = 'utf8';
-            $db_conn['dbcollat']            = 'utf8_general_ci';
-            $db_conn['benchmark']           = FALSE;
-            $db_conn['post_benchmarking']   = FALSE;
-            $db_conn['autoinit']            = TRUE;
-            $db_conn['error_mode']          = 'WARNING';
-            
+			
+			require_once CC_OBJECT_DEFINITION_PATH.'d_data.php';
 
 
-            MemoryManager::init_memory_manager();
-            Driver::initialize($db_conn);   
-        }
+			$db_conn['hostname'] 		= 'hostname of database';
+			$db_conn['username'] 		= 'username of database';
+			$db_conn['password'] 		= 'password of database';
+			$db_conn['database']		= 'database name';
+			$db_conn['dbdriver'] 		= 'mysql';
+            $db_conn['pconnect'] 		= FALSE;
+            $db_conn['db_debug'] 		= TRUE;
+			
+			//caches *memcache, *apc *ramcache (this is only for the running script life) 
+            $db_conn['memcache_on'] 	= FALSE;
+			$db_conn['apccache_on']		= FALSE;
+			$db_conn['inner_cache_on']	= FALSE;
+			$db_conn['filecache_on'] 	= FALSE;
+			$db_conn['memcache_expire'] = 300;
+			
+			$db_conn['regenerate_table_file_data'] = TRUE;
+			
+			
+            $db_conn['cachedir'] 		= '';
+            $db_conn['char_set'] 		= 'utf8';
+            $db_conn['dbcollat'] 		= 'utf8_general_ci';
+            $db_conn['benchmark'] 		= FALSE;
+			$db_conn['post_benchmarking'] = FALSE;
+            $db_conn['autoinit']		= TRUE;
+            $db_conn['error_mode'] 		= '';
+			
+
+
+			MemoryManager::init_memory_manager();
+			Driver::initialize($db_conn);   
+		}
 
     
     
@@ -96,6 +98,12 @@ use Correcaminos\Database\Driver,
         {
             MemoryManager::load_object($class);
         }
+		
+		public function new_object($object)
+		{
+			$this->load_object($object);
+			return new $object(NULL, TRUE);
+		}
         
 		/*
 		 *  Active Record Query
@@ -117,7 +125,7 @@ use Correcaminos\Database\Driver,
 			{
 				require_once 'Correcaminos/ORM/ORM_QueryBuilder.php';      
 				require_once 'Correcaminos/ORM/ORM_Facade_QueryBuilder.php';
-				require_once 'Correcaminos/ORM/ORM_Operations.php';
+				
 				$this->ORM_INIT = TRUE;
 			}
 
