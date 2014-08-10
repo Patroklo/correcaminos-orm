@@ -136,6 +136,7 @@ class base{
 					}
 				}
             }
+
             
             function set_data($key, $data, $_change_state = TRUE)
             {
@@ -155,7 +156,6 @@ class base{
 			function save()
 			{
 				ORM_Operations::save_object($this);
-
 				$this->_state = NULL;
 			}
 
@@ -212,17 +212,5 @@ class base{
 					Warning::exception($msg);
 				}
 			}         
-               // function _insert_join($colName, $joinList)
-            // {
-                // $this->_joinList[$colName] = $joinList;
-            // }
-// 			
-// 			
-			// function fill_object($data)
-			// {
-				// foreach($data as $key => $d)
-				// {
-					// $this->$key = $d;
-				// }
-			// }         
+      
 }
